@@ -20,15 +20,26 @@ init =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        RecvAppend ( data, toggle ) ->
+            if List.length model.g < 2000 then
+                ( { model | g = data :: model.g }, Task.perform RecvAppend (taskFunction toggle) )
+            else
+                case toggle of
+                    True ->
+                        ( { model | g = data :: model.g }, Task.perform (always <| ReportBenchmark (BMProgram Small)) (Task.succeed ()) )
+
+                    False ->
+                        ( { model | g = data :: model.g }, Task.perform (always <| ReportBenchmark (BMProgram Big)) (Task.succeed ()) )
+
         SmallChildMsg ->
             if List.length model.g < 2000 then
-                ( { model | g = "item" :: model.g }, Task.perform (always SmallChildMsg) (Task.succeed ()) )
+                ( { model | g = "item" :: model.g }, Task.perform RecvAppend (taskFunction True) )
             else
                 ( { model | g = "item" :: model.g }, Task.perform (always <| ReportBenchmark (BMProgram Small)) (Task.succeed ()) )
 
         BigChildMsg ->
             if List.length model.g < 2000 then
-                ( { model | g = bigItem :: model.g }, Task.perform (always BigChildMsg) (Task.succeed ()) )
+                ( { model | g = bigItem :: model.g }, Task.perform RecvAppend (taskFunction False) )
             else
                 ( { model | g = bigItem :: model.g }, Task.perform (always <| ReportBenchmark (BMProgram Big)) (Task.succeed ()) )
 
@@ -109,3 +120,11 @@ updateBenchmark ( time, time2 ) spot time3 =
 bigItem : String
 bigItem =
     "qwertytyuiopasdfghjklzxcvbnmmqazwsxedcrfvtgbyhnujmik,ol.1234567890wazxcesazxcvbhytrdcvbnmkiuygbn m,lopiuygvbnhytrd"
+
+
+taskFunction : Bool -> Task Never ( String, Bool )
+taskFunction size =
+    if size then
+        Task.succeed ( "test", size )
+    else
+        Task.succeed ( bigItem, size )

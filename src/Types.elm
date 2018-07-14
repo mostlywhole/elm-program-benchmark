@@ -20,6 +20,7 @@ type Msg
     | GetTime Benchmark Spot Time
     | StartBenchmark Benchmark
     | ReportBenchmark Benchmark
+    | RecvAppend ( String, Bool )
 
 
 type Benchmark
