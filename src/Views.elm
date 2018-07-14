@@ -1,6 +1,6 @@
 module Views exposing (view)
 
-import Html exposing (Html, div, button, table, tr, td, text)
+import Html exposing (Html, div, button, table, tr, td, text, thead, th)
 import Html.Lazy exposing (lazy)
 import Types exposing (Model, Msg(..), Benchmark(..), Size(..))
 import Html.Events exposing (onClick)
@@ -23,7 +23,15 @@ view model =
             [ style [ ( "align-items", "left" ) ]
             ]
             [ table []
-                [ lazy renderBMProgramSmall model.benchmarkProgramSmall
+                [ thead []
+                    [ tr []
+                        [ th [] [ text "Benchmark Type" ]
+                        , th [] [ text "Start" ]
+                        , th [] [ text "End" ]
+                        , th [] [ text "Elapsed" ]
+                        ]
+                    ]
+                , lazy renderBMProgramSmall model.benchmarkProgramSmall
                 , lazy renderBMProgramBig model.benchmarkProgramBig
                 , lazy renderBMRecursiveSmall model.benchmarkRecursiveSmall
                 , lazy renderBMRecursiveBig model.benchmarkRecursiveBig
